@@ -129,4 +129,4 @@ Contributions, issues, and suggestions are welcome! Feel free to fork the reposi
 
 ## 🗒️ License
 
-Leetcode is [GPL V3](./LICENSE)
+SolGuardian is [GPL V3](./LICENSE)
