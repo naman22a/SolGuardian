@@ -2,11 +2,24 @@ import 'dotenv/config';
 import { Worker } from 'bullmq';
 import { analyzeFile, SchemaType } from './utils';
 import { redis } from './redis';
+import { ScanResultModel } from './models/ScanResult';
+import mongoose from 'mongoose';
+
+mongoose.connect(process.env.MONGO_URI as string).then(() => {
+    console.log('MongoDB connected (worker)');
+});
 
 new Worker(
     'audit',
     async (job) => {
-        const { fileName, filePath, fileContent, hash, socketId } = job.data;
+        const {
+            submissionId,
+            fileName,
+            filePath,
+            fileContent,
+            hash,
+            socketId,
+        } = job.data;
 
         console.log(`Analyzing file: ${fileName}`);
         console.log(`File size: ${fileContent.length} characters`);
@@ -22,6 +35,11 @@ new Worker(
                     fileName,
                     fileContent,
                 );
+                await ScanResultModel.create({
+                    submissionId,
+                    analyzer: 'solguardian-ai',
+                    analysisResult: auditReport,
+                });
                 // auditReport = {
                 //     name: 'FibonacciBalance',
                 //     pragma: '^0.4.22',
@@ -72,5 +90,6 @@ new Worker(
             host: process.env.REDIS_HOST,
             port: parseInt(process.env.REDIS_PORT, 10),
         },
+        concurrency: 2,
     },
 );

@@ -9,6 +9,12 @@ import { Queue } from 'bullmq';
 import { createServer } from 'http';
 import { Server } from 'socket.io';
 import { redis, sub } from './redis';
+import mongoose from 'mongoose';
+import { SubmissionModel } from './models/Submission';
+
+mongoose.connect(process.env.MONGO_URI as string).then(() => {
+    console.log('MongoDB connected');
+});
 
 const app = express();
 const httpServer = createServer(app);
@@ -60,6 +66,12 @@ app.post(
             return;
         }
 
+        const submission = await SubmissionModel.create({
+            contractName: req.file.originalname,
+            code: fileContent,
+            pragma: 'unknown',
+        });
+
         const hash = getCodeHash(fileContent);
         const cached = await redis.get(`audit:${hash}`);
         if (cached) {
@@ -72,6 +84,7 @@ app.post(
         }
 
         const job = await auditQueue.add('audit-solidity', {
+            submissionId: submission._id,
             fileName,
             filePath,
             fileContent,

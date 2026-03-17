@@ -1,0 +1,43 @@
+services:
+    db:
+        image: mongo:8
+        restart: always
+        container_name: SolGuardian-mongodb
+        environment:
+            MONGO_INITDB_ROOT_USERNAME: root
+            MONGO_INITDB_ROOT_PASSWORD: root
+        healthcheck:
+            test: >
+                echo 'db.runCommand("ping").ok' | mongosh
+                --host localhost
+                --port 27017
+                -u $$MONGO_INITDB_ROOT_USERNAME
+                -p $$MONGO_INITDB_ROOT_PASSWORD
+                --authenticationDatabase admin
+                --quiet
+            interval: 10s
+            timeout: 5s
+            retries: 5
+            start_period: 10s
+        volumes:
+          - mongodb-data:/data/db
+        ports:
+          - "27017:27017"
+
+    redis:
+        image: redis:7
+        restart: always
+        container_name: SolGuardian-redis
+        ports:
+            - '6379:6379'
+        volumes:
+            - redis-data:/data
+        healthcheck:
+            test: ['CMD', 'redis-cli', 'ping']
+            interval: 10s
+            timeout: 5s
+            retries: 5
+
+volumes:
+  redis-data:
+  mongodb-data:
