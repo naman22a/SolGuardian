@@ -105,13 +105,13 @@ app.post(
     },
 );
 
-app.get('/submissions', (_req: Request, res: Response) => {
-    const submissions = SubmissionModel.find();
+app.get('/submissions', async (_req: Request, res: Response) => {
+    const submissions = await SubmissionModel.find().lean();
     res.status(200).json(submissions);
 });
 
-app.get('/results', (_req: Request, res: Response) => {
-    const results = ScanResultModel.find();
+app.get('/results', async (_req: Request, res: Response) => {
+    const results = await ScanResultModel.find().lean();
     res.status(200).json(results);
 });
 
