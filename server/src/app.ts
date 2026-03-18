@@ -11,6 +11,15 @@ import { Server } from 'socket.io';
 import { redis, sub } from './redis';
 import mongoose from 'mongoose';
 import { SubmissionModel } from './models/Submission';
+import { ScanResultModel } from './models/ScanResult';
+
+const uploadDir = path.join(__dirname, '..', 'uploads');
+
+if (!fs.existsSync(uploadDir)) {
+    fs.mkdirSync(uploadDir, { recursive: true });
+}
+
+console.log('Uploads directory ready:', uploadDir);
 
 mongoose.connect(process.env.MONGO_URI as string).then(() => {
     console.log('MongoDB connected');
@@ -24,7 +33,7 @@ const io = new Server(httpServer, {
 const port = process.env.PORT ?? 5000;
 const storage = multer.diskStorage({
     destination: function (_req, _file, cb) {
-        cb(null, path.join(__dirname, '..', 'uploads'));
+        cb(null, uploadDir);
     },
     filename: function (_req, file, cb) {
         const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1e9);
@@ -95,6 +104,16 @@ app.post(
         res.json({ cached: false, jobId: job.id });
     },
 );
+
+app.get('/submissions', (_req: Request, res: Response) => {
+    const submissions = SubmissionModel.find();
+    res.status(200).json(submissions);
+});
+
+app.get('/results', (_req: Request, res: Response) => {
+    const results = ScanResultModel.find();
+    res.status(200).json(results);
+});
 
 sub.psubscribe('audit:done:*', (err, _count) => {
     if (err) throw err;

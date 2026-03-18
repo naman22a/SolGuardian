@@ -1,0 +1,82 @@
+services:
+  db:
+    image: mongo:8
+    restart: always
+    container_name: SolGuardian-mongodb
+    environment:
+        MONGO_INITDB_ROOT_USERNAME: ${MONGO_INITDB_ROOT_USERNAME:-root}
+        MONGO_INITDB_ROOT_PASSWORD: ${MONGO_INITDB_ROOT_PASSWORD:-root}
+    healthcheck:
+        test: >
+            echo 'db.runCommand("ping").ok' | mongosh
+            --host localhost
+            --port 27017
+            -u $$MONGO_INITDB_ROOT_USERNAME
+            -p $$MONGO_INITDB_ROOT_PASSWORD
+            --authenticationDatabase admin
+            --quiet
+        interval: 10s
+        timeout: 5s
+        retries: 5
+        start_period: 10s
+    volumes:
+      - mongodb-data:/data/db
+    ports:
+      - "27017:27017"
+
+  redis:
+    image: redis:7
+    restart: always
+    container_name: SolGuardian-redis
+    ports:
+        - '6379:6379'
+    volumes:
+        - redis-data:/data
+    healthcheck:
+        test: ['CMD', 'redis-cli', 'ping']
+        interval: 10s
+        timeout: 5s
+        retries: 5
+
+  server:
+    build:
+      context: ./server
+      dockerfile: Dockerfile.server
+    container_name: SolGuardian-server
+    depends_on:
+      - db
+      - redis
+    ports:
+      - '5000:5000'
+    environment:
+        NODE_ENV: production
+        PORT: 5000
+        CLIENT_URL: ${CLIENT_URL}
+        REDIS_HOST: redis
+        REDIS_PORT: 6379
+        MONGO_URI: mongodb://${MONGO_INITDB_ROOT_USERNAME:-root}:${MONGO_INITDB_ROOT_PASSWORD:-root}@db:27017
+
+  worker:
+    build:
+      context: ./server
+      dockerfile: Dockerfile.worker
+    container_name: SolGuardian-worker
+    depends_on:
+      - server
+      - db
+      - redis
+    environment:
+        NODE_ENV: production
+        PORT: 5000
+        CLIENT_URL: ${CLIENT_URL}
+        REDIS_HOST: redis
+        REDIS_PORT: 6379
+        MONGO_URI: mongodb://${MONGO_INITDB_ROOT_USERNAME:-root}:${MONGO_INITDB_ROOT_PASSWORD:-root}@db:27017
+
+volumes:
+  redis-data:
+  mongodb-data:
+
+networks:
+    default:
+        name: SolGuardian-network
