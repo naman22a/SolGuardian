@@ -87,14 +87,6 @@ Run Docker Compose
 docker compose up
 ```
 
-Setup Ollama inside docker
-
-```bash
-docker exec -it <ollama_container_id_or_name> bash
-ollama pull codellama
-exit
-```
-
 visit http://localhost:3000 to view the web application
 
 ## 🧭 Future Scope
