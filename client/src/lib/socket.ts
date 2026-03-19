@@ -5,9 +5,12 @@ let socket: Socket;
 
 export const getSocket = (): Socket => {
     if (!socket) {
-        socket = io(process.env.NEXT_PUBLIC_API_ENDPOINT, {
-            transports: ['websocket']
-        });
+        socket = io(
+            process.env.NEXT_PUBLIC_API_ENDPOINT ?? 'http://localhost:5000',
+            {
+                transports: ['websocket']
+            }
+        );
     }
     return socket;
 };

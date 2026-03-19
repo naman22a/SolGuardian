@@ -6,6 +6,9 @@ declare global {
             CLIENT_URL: string;
             REDIS_HOST: string;
             REDIS_PORT: string;
+            MONGO_URI: string;
+            OLLAMA_URL: string;
+            OLLAMA_MODEL: string;
         }
     }
 }

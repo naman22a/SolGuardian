@@ -72,7 +72,7 @@ function Home() {
             formData.append('socketId', socket.id!);
 
             const res = await axios.post(
-                `${process.env.NEXT_PUBLIC_API_ENDPOINT}/audit`,
+                `${process.env.NEXT_PUBLIC_API_ENDPOINT ?? 'http://localhost:5000'}/audit`,
                 formData
             );
 
@@ -115,7 +115,7 @@ function Home() {
             formData.append('socketId', socket.id!);
 
             const res = await axios.post(
-                `${process.env.NEXT_PUBLIC_API_ENDPOINT}/audit`,
+                `${process.env.NEXT_PUBLIC_API_ENDPOINT ?? 'http://localhost:5000'}/audit`,
                 formData
             );
 

@@ -65,7 +65,8 @@ const prompt = new PromptTemplate({
 });
 
 const model = new Ollama({
-    model: 'codellama',
+    model: process.env.OLLAMA_MODEL!,
+    baseUrl: process.env.OLLAMA_URL!,
     temperature: 0.1,
 });
 

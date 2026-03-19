@@ -1,6 +1,5 @@
 import 'dotenv/config';
 import { Worker } from 'bullmq';
-// @ts-ignore
 import { analyzeFile, SchemaType } from './utils';
 import { redis } from './redis';
 import { ScanResultModel } from './models/ScanResult';
@@ -16,7 +15,6 @@ new Worker(
         const {
             submissionId,
             fileName,
-            // @ts-ignore
             filePath,
             fileContent,
             hash,
@@ -32,24 +30,24 @@ new Worker(
             if (cachedResult) {
                 auditReport = JSON.parse(cachedResult);
             } else {
-                // auditReport = await analyzeFile(
-                //     filePath,
-                //     fileName,
-                //     fileContent,
-                // );
-                auditReport = {
-                    name: 'FibonacciBalance',
-                    pragma: '^0.4.22',
-                    categories: [
-                        {
-                            type: 'access_control',
-                            lines: [31, 38],
-                            confidence: 0.95,
-                            explanation:
-                                "The contract has a vulnerability in the 'withdraw' function that allows an attacker to call the 'setFibonacci' function with any value for 'n', potentially leading to a denial of service attack.",
-                        },
-                    ],
-                };
+                auditReport = await analyzeFile(
+                    filePath,
+                    fileName,
+                    fileContent,
+                );
+                // auditReport = {
+                //     name: 'FibonacciBalance',
+                //     pragma: '^0.4.22',
+                //     categories: [
+                //         {
+                //             type: 'access_control',
+                //             lines: [31, 38],
+                //             confidence: 0.95,
+                //             explanation:
+                //                 "The contract has a vulnerability in the 'withdraw' function that allows an attacker to call the 'setFibonacci' function with any value for 'n', potentially leading to a denial of service attack.",
+                //         },
+                //     ],
+                // };
                 await ScanResultModel.create({
                     submissionId,
                     analyzer: 'solguardian-ai',

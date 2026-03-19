@@ -39,9 +39,7 @@ services:
         retries: 5
 
   server:
-    build:
-      context: ./server
-      dockerfile: Dockerfile.server
+    image: naman22a/solguardian-server
     container_name: SolGuardian-server
     depends_on:
       - db
@@ -55,11 +53,11 @@ services:
         REDIS_HOST: redis
         REDIS_PORT: 6379
         MONGO_URI: mongodb://${MONGO_INITDB_ROOT_USERNAME:-root}:${MONGO_INITDB_ROOT_PASSWORD:-root}@db:27017
+        OLLAMA_URL: http://ollama:11434
+        OLLAMA_MODEL: codellama
 
   worker:
-    build:
-      context: ./server
-      dockerfile: Dockerfile.worker
+    image: naman22a/solguardian-worker
     container_name: SolGuardian-worker
     depends_on:
       - server
@@ -72,11 +70,11 @@ services:
         REDIS_HOST: redis
         REDIS_PORT: 6379
         MONGO_URI: mongodb://${MONGO_INITDB_ROOT_USERNAME:-root}:${MONGO_INITDB_ROOT_PASSWORD:-root}@db:27017
+        OLLAMA_URL: http://ollama:11434
+        OLLAMA_MODEL: codellama
 
   web:
-    build:
-      context: ./client
-      dockerfile: Dockerfile
+    image: naman22a/solguardian-web
     container_name: SolGuardian-web
     depends_on:
       - server
@@ -86,9 +84,18 @@ services:
     ports:
       - '3000:3000'
 
+  ollama:
+    image: ollama/ollama
+    container_name: SolGuardian-ollama
+    ports:
+      - '11434:11434'
+    volumes:
+      - ollama-data:/root/.ollama
+
 volumes:
   redis-data:
   mongodb-data:
+  ollama-data:
 
 networks:
     default:
