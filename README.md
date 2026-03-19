@@ -74,42 +74,28 @@ TypeScript-based **Express server** integrated with **LangChain** and **CodeLlam
 
 ## 🚀 Installation
 
+Clone the repository
+
 ```bash
-# Clone the repository
 git clone https://github.com/naman22a/SolGuardian
 cd SolGuardian
 ```
 
-```bash
-# Setup Ollama for linux
-curl -fsSL https://ollama.com/install.sh | sh
+Run Docker Compose
 
-# Install codellama
+```bash
+docker compose up
+```
+
+Setup Ollama inside docker
+
+```bash
+docker exec -it <ollama_container_id_or_name> bash
 ollama pull codellama
+exit
 ```
 
-```bash
-# setup server
-cd server
-cp .env.example .env
-
-# run redis
-docker compose up -d
-
-# run server
-pnpm dev
-
-# run worker
-pnpm dev:worker
-```
-
-```bash
-# setup client
-cd client
-cp .env.example .env
-
-pnpm dev
-```
+visit http://localhost:3000 to view the web application
 
 ## 🧭 Future Scope
 
